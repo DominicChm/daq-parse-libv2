@@ -1,4 +1,4 @@
-import {DaqEncoder} from "../DaqEncoder";
+import {DaqEncoder} from "../src/DaqEncoder";
 import {throws} from "assert";
 import {cStruct, uint32, uint8} from "c-type-util";
 
