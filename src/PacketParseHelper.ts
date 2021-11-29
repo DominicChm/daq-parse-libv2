@@ -15,17 +15,16 @@ export class PacketParseHelper {
             return Promise.resolve(dat);
         }
 
-
         this.num_waiting = num_bytes;
         return new Promise((res) => {
             this.resolve_bytes = res;
         });
     }
 
-    async uint8(): Promise<number> {
-        return this.cType(CType.uint8);
-    }
-
+    /**
+     * Awaits a CType.
+     * @param ct {CType} - The ctype to await.
+     */
     async cType<T>(ct: CType.CType<T>): Promise<T> {
         const bytes = await this.bytes(ct.size);
         const buf = new Uint8Array(bytes).buffer;

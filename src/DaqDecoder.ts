@@ -1,8 +1,13 @@
-import {CType, StructMembers, uint16, uint8} from "c-type-util";
+import {cStruct, CType, StructMembers, uint16, uint8} from "c-type-util";
 import {DaqSchema} from "./interfaces/DaqSchema";
 import {calcChecksum} from "./calcChecksum";
 import {PacketParseHelper} from "./PacketParseHelper";
 import * as timers from "timers";
+
+const regular_header_block_ctype = cStruct({
+    id: uint16,
+    ver: uint8,
+})
 
 export class DaqDecoder {
     private ph: PacketParseHelper = new PacketParseHelper();
@@ -42,8 +47,19 @@ export class DaqDecoder {
     async parse_regular_header() {
         const len = await this.ph.cType(uint16);
         const data = await this.ph.bytes(len);
-        const checksum = await this.ph.uint8();
+        const checksum = await this.ph.cType(uint8);
 
-        console.log(len, data, checksum);
+        const dataBuf = new Uint8Array(data).buffer;
+        const calculatedChecksum = calcChecksum(dataBuf);
+
+        if (calculatedChecksum !== checksum)
+            throw new Error(`Corrupt packet - checksums don't match. Actual: >${checksum}<, expected: >${calculatedChecksum}<`)
+
+        let ids = [];
+        for (let i = 0; i < dataBuf.byteLength; i += regular_header_block_ctype.size)
+            ids.push(regular_header_block_ctype.readLE(dataBuf, i));
+
+
+        console.log(len, data, checksum, ids);
     }
 }
