@@ -10,6 +10,7 @@ export class SchemaManager {
     private daqSchema: DaqSchema;
     private resolvedModules: ResolvedModuleDefinition[];
     private resolvedIdMap: Map<string, ResolvedModuleDefinition> = new Map();
+    private resolvedNameMap: Map<string, ResolvedModuleDefinition> = new Map();
 
     constructor(daqSchema: DaqSchema, moduleTypes: ModuleTypeDefinition<any, any, any>[]) {
         this.moduleTypes = moduleTypes;
@@ -67,8 +68,9 @@ export class SchemaManager {
 
             return {corrected: correctedDef, resolved: resolvedDef};
         });
-
         resolvedDefinitions.forEach(v => this.resolvedIdMap.set(v.resolved.id, v.resolved));
+        resolvedDefinitions.forEach(v => this.resolvedNameMap.set(v.resolved.name, v.resolved));
+
         this.resolvedModules = resolvedDefinitions.map(d => d.resolved);
         this.daqSchema = {
             ...daqSchema,
@@ -81,5 +83,9 @@ export class SchemaManager {
             id = buf2mac(id);
 
         return this.resolvedIdMap.get(id);
+    }
+
+    findByName(id: string): ResolvedModuleDefinition | undefined {
+        return this.resolvedNameMap.get(id);
     }
 }
