@@ -1,31 +1,71 @@
 import {DaqDecoder} from "../src/DaqDecoder";
+import {DaqSchema} from "../src/interfaces/DaqSchema";
+import {SchemaManager} from "../src/SchemaManager";
+import {SensorBrakePressure} from "../src/moduleTypes/SensorBrakePressure";
+
+const test_daq_schema: DaqSchema = {
+    modules: [
+        {
+            id: "00:01:02:03:04:00",
+            description: "test1",
+            name: "test1",
+            typeName: "brake_pressure",
+            config: {}
+        },
+        {
+            id: "00:01:02:03:04:01",
+            description: "test2",
+            name: "test2",
+            typeName: "brake_pressure",
+            config: {}
+        },
+        {
+            id: "00:01:02:03:04:02",
+            description: "test3",
+            name: "test3",
+            typeName: "brake_pressure",
+            config: {}
+        },
+        {
+            id: "00:01:02:03:04:03",
+            description: "test4",
+            name: "test4",
+            typeName: "brake_pressure",
+            config: {}
+        },
+        {
+            id: "00:01:02:03:04:04",
+            description: "test5",
+            name: "test5",
+            typeName: "brake_pressure",
+            config: {}
+        }
+    ]
+}
+
 
 describe("DaqDecoder", () => {
-    test("bulk data input", async () => {
+    test("regular header parse", (done) => {
         const h = [
             0xAA, // Regular header
-            10, 0, // Data is 10 bytes long
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, //Data
-            182 //CRC-8 checksum
+            2, 0, // 2 modules present
+
+            //2 MAC address ids.
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x00, 0x00, // Version: 0
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x01, 0x05, // Version: 5
+
+            91 //CRC-8 data checksum
         ]
 
-        const d = new DaqDecoder({modules: []}, console.log)
-        h.forEach(v => d.feed(v));
-        await new Promise(res => setTimeout(res, 20));
-    })
+        const sm = new SchemaManager(test_daq_schema, [SensorBrakePressure]);
+        const d = new DaqDecoder(sm, (data) => {
+            console.log(data);
+        }, (header) => {
+            done();
+        });
 
-    test("spaced input data", async () => {
-        const h = [
-            0xAA, // Regular header
-            15, 0, // Data is 10 bytes long
-            1, 0, 0, 2, 0, 1, 3, 0, 0, 4, 0, 0, 5, 0, 0, //5 16 bit IDs (1,2,3,4,5)
-            130 //CRC-8 checksum
-        ]
-
-        const d = new DaqDecoder({modules: []}, console.log)
-        for (let b of h) {
+        for (let b of h)
             d.feed(b);
-            await new Promise(res => setTimeout(res, 10));
-        }
+
     })
 })

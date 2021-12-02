@@ -1,6 +1,9 @@
-export function calcChecksum(dataArrayBuffer: ArrayBuffer | number[]) {
-    let c = 0;
-    const table = [0, 94, 188, 226, 97, 63, 221, 131, 194, 156, 126, 32, 163, 253, 31, 65, 157, 195, 33, 127, 252,
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.calcChecksum = void 0;
+function calcChecksum(dataArrayBuffer) {
+    var c = 0;
+    var table = [0, 94, 188, 226, 97, 63, 221, 131, 194, 156, 126, 32, 163, 253, 31, 65, 157, 195, 33, 127, 252,
         162, 64, 30, 95, 1, 227, 189, 62, 96, 130, 220, 35, 125, 159, 193, 66, 28, 254, 160, 225, 191,
         93, 3, 128, 222, 60, 98, 190, 224, 2, 92, 223, 129, 99, 61, 124, 34, 192, 158, 29, 67, 161, 255,
         70, 24, 250, 164, 39, 121, 155, 197, 132, 218, 56, 102, 229, 187, 89, 7, 219, 133, 103, 57, 186,
@@ -13,18 +16,11 @@ export function calcChecksum(dataArrayBuffer: ArrayBuffer | number[]) {
         181, 54, 104, 138, 212, 149, 203, 41, 119, 244, 170, 72, 22, 233, 183, 85, 11, 136, 214, 52, 106,
         43, 117, 151, 201, 74, 20, 246, 168, 116, 42, 200, 150, 21, 75, 169, 247, 182, 232, 10, 84, 215,
         137, 107, 53];
-
-    let len: number, dv: { [index: number]: number };
-    if (dataArrayBuffer instanceof ArrayBuffer) {
-        len = dataArrayBuffer?.byteLength
-        dv = new Uint8Array(dataArrayBuffer);
-    } else {
-        len = dataArrayBuffer.length;
-        dv = dataArrayBuffer;
+    var dv = new DataView(dataArrayBuffer);
+    for (var i = 0; i < dataArrayBuffer.byteLength; i++) {
+        c = table[(c ^ dv.getUint8(i)) % 256];
     }
-
-    for (let i = 0; i < len; i++)
-        c = table[(c ^ dv[i]) % 256];
-
     return c;
 }
+exports.calcChecksum = calcChecksum;
+//# sourceMappingURL=calcChecksum.js.map
