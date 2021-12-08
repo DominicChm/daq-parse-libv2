@@ -1,14 +1,28 @@
-import {cArray, cStruct, CType, StructMembers, uint16, uint8} from "c-type-util";
+import {cArray, cString, cStruct, CType, StructMembers, uint16, uint8} from "c-type-util";
 import {calcChecksum} from "./calcChecksum";
 import {PacketParseHelper} from "./PacketParseHelper";
 import * as timers from "timers";
 import {SchemaManager} from "./SchemaManager";
 import {buf2mac} from "./util/buf2hex";
 
+interface header_data {
+    header_type: "regular" | "extended",
+    id: number[],
+    ver: number
+}
+
 const regular_header_block_ctype = cStruct({
     id: cArray(uint8, 6), //6-byte ID = MAC
     ver: uint8,
-})
+});
+
+const extended_header_block_ctype = cStruct({
+    id: cArray(uint8, 6), //6-byte ID = MAC
+    ver: uint8,
+    type_name: cString(64),
+    name: cString(64),
+    description: cString(128),
+});
 
 type CallBack<T> = (data: T) => void;
 
@@ -60,6 +74,9 @@ export class DaqDecoder {
             case 0xAA: //Normal header
                 await this.parse_regular_header();
                 break;
+            case 0xBB: //Normal header
+                await this.parse_extended_header();
+                break;
             case 0x69: //Normal data
                 await this.parse_data();
                 break;
@@ -75,8 +92,24 @@ export class DaqDecoder {
         const raw_module_defs = await this.ph.cType(cArray(regular_header_block_ctype, len), true);
         const checksum = await this.ph.uint8_checksum();
 
+        await this.load_header_data(raw_module_defs);
+    }
+
+
+    async parse_extended_header() {
+        this.ph.resetChecksum();
+
+        const len = await this.ph.cType(uint16);
+        const raw_module_defs = await this.ph.cType(cArray(extended_header_block_ctype, len), true);
+        const checksum = await this.ph.uint8_checksum();
+
+        await this.load_header_data(raw_module_defs);
+        //console.log(len, data, checksum, module_definitions);
+    }
+
+    private async load_header_data(hd: header_data[]) {
         //Map each buffer ID into a MAC string
-        const present_modules = raw_module_defs.map(mDef => ({...mDef, id: buf2mac(mDef.id)}));
+        const present_modules = hd.map(mDef => ({...mDef, id: buf2mac(mDef.id)}));
 
         //Convert found IDs into definitions, from the DAQ schema.
         const module_definitions = present_modules.map(module => {
@@ -98,7 +131,6 @@ export class DaqDecoder {
         });
 
         this.dataCType = cStruct(structMembers);
-        //console.log(len, data, checksum, module_definitions);
     }
 
     async parse_data() {

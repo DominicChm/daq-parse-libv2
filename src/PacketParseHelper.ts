@@ -44,6 +44,7 @@ export class PacketParseHelper {
 
         if (!(b === expected))
             throw new Error(`Corrupt packet - checksums don't match. Actual: >${b}<, expected: >${expected}<`);
+
     }
 
     feed(b: number) {
