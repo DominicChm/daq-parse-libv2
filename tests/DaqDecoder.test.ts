@@ -52,7 +52,7 @@ const test_header = [
     0x00, 0x01, 0x02, 0x03, 0x04, 0x00, 0x00, // Version: 0
     0x00, 0x01, 0x02, 0x03, 0x04, 0x01, 0x05, // Version: 5
 
-    91 //CRC-8 data checksum
+    0xDB, 0xE8 //CRC-8 data checksum
 ];
 
 const bad_checksum_header = [
@@ -63,7 +63,7 @@ const bad_checksum_header = [
     0x00, 0x01, 0x02, 0x03, 0x04, 0x00, 0x00, // Version: 0
     0x00, 0x01, 0x02, 0x03, 0x04, 0x01, 0x05, // Version: 5
 
-    0 //CRC-8 data checksum
+    0, 0//CRC-8 data checksum
 ];
 
 const extended_header = [
@@ -82,14 +82,14 @@ const extended_header = [
     ...cstr(64, "BP2"),
     ...cstr(128, "BP2 - Description"),
 
-    157 //CRC-8 data checksum
+    157, 157 //CRC-16 data checksum
 ];
 
 const test_data = [
     0x69, // Data header
     0x01, 0x00, //BP1
     0x02, 0x00, //BP2
-    30 //Checksum
+    30, 157 //CRC-16 checksum
 ];
 
 describe("DaqDecoder", () => {
