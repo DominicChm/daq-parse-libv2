@@ -1,17 +1,40 @@
-import {cStruct, CType, StructMembers, end, CTypeEndian} from "c-type-util";
+import {SchemaManager} from "./SchemaManager";
+import {DaqEncoderConfig} from "./interfaces/DaqEncoderConfig";
+import {ResolvedModuleDefinition} from "./interfaces/DaqSchema";
+import {sliceU8, createDv} from "./ArrayUtils";
 
 export class DaqEncoder<S> {
-    private ctype: CTypeEndian<S>;
+    private schemaManager: SchemaManager;
+    private activeModuleIds: string[] = [];
+    private activeModuleDefinitions: ResolvedModuleDefinition[] = [];
 
-    constructor(dataMembers: StructMembers<S>, littleEndian: boolean = true) {
-        if (Object.values(dataMembers).length <= 0)
-            throw new Error("No data members passed!");
+    constructor(sm: SchemaManager, options: DaqEncoderConfig) {
+        this.schemaManager = sm;
 
-        this.ctype = end(cStruct(dataMembers), littleEndian ? "little" : "big");
+
     }
 
-    encode(data: S): ArrayBuffer {
-        return this.ctype.alloc(data);
+    setActiveModules(moduleIds: string[]) {
+        this.activeModuleIds = moduleIds;
+        this.activeModuleDefinitions = this.activeModuleIds.map(this.schemaManager.findById);
+    }
+
+    encode(data: S): Uint8Array {
+        const buf = new Uint8Array(8192);
+        const dv = createDv(buf);
+        let offset = 0;
+        for (const def of this.activeModuleDefinitions)
+            offset += def.type.encode(dv, offset);
+
+        return sliceU8(buf, 0, offset);
+    }
+
+    encodeHeader() {
+
+    }
+
+    encodeExtendedHeader() {
+
     }
 
 }

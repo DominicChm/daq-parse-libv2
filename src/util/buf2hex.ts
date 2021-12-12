@@ -6,7 +6,7 @@ for (let n = 0; n < 0x100; n++) {
     LUT_HEX_8b[n] = `${LUT_HEX_4b[(n >>> 4) & 0xF]}${LUT_HEX_4b[n & 0xF]}`;
 }
 
-export function buf2mac(buffer: ArrayBuffer | number[]): string {
+export function buf2mac(buffer: Uint8Array): string {
     let out = '';
     for (let idx = 0, edx = (buffer as any).length; idx < edx; idx++) {
         out += LUT_HEX_8b[(buffer as any)[idx]];

@@ -78,11 +78,15 @@ export class SchemaManager {
         }
     }
 
-    findById(id: string | ArrayBuffer | number[]): ResolvedModuleDefinition | undefined {
+    findById(id: string | Uint8Array): ResolvedModuleDefinition {
         if (typeof id !== "string")
             id = buf2mac(id);
 
-        return this.resolvedIdMap.get(id);
+        const res = this.resolvedIdMap.get(id);
+        if (!res)
+            throw new Error(`Attempt to resolve module ID >${id}< which doesn't exist in the schema.`);
+
+        return res;
     }
 
     findByName(id: string): ResolvedModuleDefinition | undefined {

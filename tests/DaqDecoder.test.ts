@@ -82,24 +82,24 @@ const extended_header = [
     ...cstr(64, "BP2"),
     ...cstr(128, "BP2 - Description"),
 
-    157, 157 //CRC-16 data checksum
+    0x1F, 0x67 //CRC-16 data checksum
 ];
 
 const test_data = [
     0x69, // Data header
     0x01, 0x00, //BP1
     0x02, 0x00, //BP2
-    30, 157 //CRC-16 checksum
+    0xD5, 0xD3 //CRC-16 checksum
 ];
 
 describe("DaqDecoder", () => {
     test("regular header parse", (done) => {
         const sm = new SchemaManager(test_daq_schema, [SensorBrakePressure]);
-        const d = new DaqDecoder(sm, (data) => {
-            console.log(data);
-        }, (header) => {
-            done();
-        }, throwErr);
+        const d = new DaqDecoder(sm, {
+            onHeader: () => done(),
+            onError: throwErr,
+            onData: console.log
+        });
 
         for (let b of test_header)
             d.feed(b);
@@ -108,11 +108,11 @@ describe("DaqDecoder", () => {
 
     test("header bad checksum", (done) => {
         const sm = new SchemaManager(test_daq_schema, [SensorBrakePressure]);
-        const d = new DaqDecoder(sm,
-            console.log,
-            console.log, (err) => {
-                done();
-            });
+        const d = new DaqDecoder(sm, {
+            onHeader: noop,
+            onError: (err) => done(),
+            onData: noop
+        });
 
         for (let b of bad_checksum_header)
             d.feed(b);
@@ -126,11 +126,11 @@ describe("DaqDecoder", () => {
         }
         const sm = new SchemaManager(test_daq_schema, [SensorBrakePressure]);
         const d = new DaqDecoder(sm,
-            (data) => {
-                expect(data).toEqual(expected);
-                done();
-            },
-            console.log, throwErr);
+            {
+                onHeader: noop,
+                onError: throwErr,
+                onData: () => done()
+            });
 
         for (let b of test_header)
             d.feed(b);
@@ -140,7 +140,7 @@ describe("DaqDecoder", () => {
 
     });
 
-    test("Extended header with data", (done) => {
+    test("Extended header", (done) => {
         const expected = {
             BP1: {pressurePsi: 1},
             BP2: {pressurePsi: 2},
@@ -148,12 +148,11 @@ describe("DaqDecoder", () => {
 
         console.log(extended_header);
         const sm = new SchemaManager(test_daq_schema, [SensorBrakePressure]);
-        const d = new DaqDecoder(sm, noop,
-            (data) => {
-                //expect(data).toEqual(expected);
-                console.log(data);
-                done();
-            }, throwErr);
+        const d = new DaqDecoder(sm, {
+            onHeader: () => done(),
+            onError: throwErr,
+            onData: noop,
+        });
 
         for (let b of extended_header)
             d.feed(b);
