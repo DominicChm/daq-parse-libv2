@@ -9,10 +9,6 @@ export interface ModuleDefinition {
     version?: number;
 }
 
-export interface DaqSchema {
-    modules: ModuleDefinition[];
-}
-
 //Contains extra, non-serializable information about modules used in other parts of the program.
 export interface ResolvedModuleDefinition extends ModuleDefinition {
     type: ModuleTypeDefinition<any, any, any>

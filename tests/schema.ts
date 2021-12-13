@@ -1,7 +1,7 @@
-import {DaqSchema} from "../src/interfaces/DaqSchema";
+import {ModuleDefinition} from "../src/interfaces/DaqSchema";
 
-export const testDAQSchema: DaqSchema = {
-    modules: [
+export const testDAQModules: ModuleDefinition[] =
+    [
         {
             id: "00:01:02:03:04:00",
             description: "test1",
@@ -39,4 +39,4 @@ export const testDAQSchema: DaqSchema = {
             config: {}
         }
     ]
-}
+

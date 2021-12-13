@@ -2,7 +2,7 @@ import {DaqDecoder} from "../src/DaqDecoder";
 import {SchemaManager} from "../src/SchemaManager";
 import {SensorBrakePressure} from "../src/moduleTypes/SensorBrakePressure";
 import {cString} from "c-type-util";
-import {testDAQSchema} from "./schema";
+import {testDAQModules} from "./schema";
 
 
 const test_header = [
@@ -55,7 +55,7 @@ const test_data = [
 
 describe("DaqDecoder", () => {
     test("regular header parse", (done) => {
-        const sm = new SchemaManager(testDAQSchema, [SensorBrakePressure]);
+        const sm = new SchemaManager(testDAQModules, [SensorBrakePressure]);
         const d = new DaqDecoder(sm, {
             onHeader: () => done(),
             onError: throwErr,
@@ -68,7 +68,7 @@ describe("DaqDecoder", () => {
     })
 
     test("header bad checksum", (done) => {
-        const sm = new SchemaManager(testDAQSchema, [SensorBrakePressure]);
+        const sm = new SchemaManager(testDAQModules, [SensorBrakePressure]);
         const d = new DaqDecoder(sm, {
             onHeader: noop,
             onError: (err) => done(),
@@ -85,7 +85,7 @@ describe("DaqDecoder", () => {
             BP1: {pressurePsi: 1},
             BP2: {pressurePsi: 2},
         }
-        const sm = new SchemaManager(testDAQSchema, [SensorBrakePressure]);
+        const sm = new SchemaManager(testDAQModules, [SensorBrakePressure]);
         const d = new DaqDecoder(sm,
             {
                 onHeader: noop,
@@ -108,7 +108,7 @@ describe("DaqDecoder", () => {
         }
 
         console.log(extended_header);
-        const sm = new SchemaManager(testDAQSchema, [SensorBrakePressure]);
+        const sm = new SchemaManager(testDAQModules, [SensorBrakePressure]);
         const d = new DaqDecoder(sm, {
             onHeader: () => done(),
             onError: throwErr,

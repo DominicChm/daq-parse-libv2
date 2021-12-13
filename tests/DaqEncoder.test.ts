@@ -1,9 +1,9 @@
 import {DaqEncoder} from "../src/DaqEncoder";
 import {SchemaManager} from "../src/SchemaManager";
-import {testDAQSchema} from "./schema";
+import {testDAQModules} from "./schema";
 import {SensorBrakePressure} from "../src/moduleTypes/SensorBrakePressure";
 
-const sm = new SchemaManager(testDAQSchema, [SensorBrakePressure]);
+const sm = new SchemaManager(testDAQModules, [SensorBrakePressure]);
 const d = new DaqEncoder(sm, {});
 
 describe("DaqEncoder", () => {

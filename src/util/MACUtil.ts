@@ -39,3 +39,14 @@ export function mac2buf(string: string) {
     }
     return bytes;
 }
+
+export function standardizeMac(mac: string) {
+    const parts = mac
+        .replace(/[\W_]+/g, '')
+        .match(/(.{2})/g);
+
+    if (!parts)
+        throw new Error("Couldn't generate formatted MAC parts");
+
+    return parts.join(":");
+}
