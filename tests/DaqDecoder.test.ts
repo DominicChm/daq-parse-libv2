@@ -1,48 +1,9 @@
 import {DaqDecoder} from "../src/DaqDecoder";
-import {DaqSchema} from "../src/interfaces/DaqSchema";
 import {SchemaManager} from "../src/SchemaManager";
 import {SensorBrakePressure} from "../src/moduleTypes/SensorBrakePressure";
 import {cString} from "c-type-util";
+import {testDAQSchema} from "./schema";
 
-const test_daq_schema: DaqSchema = {
-    modules: [
-        {
-            id: "00:01:02:03:04:00",
-            description: "test1",
-            name: "BP1",
-            typeName: "brake_pressure",
-            config: {}
-        },
-        {
-            id: "00:01:02:03:04:01",
-            description: "test2",
-            name: "BP2",
-            typeName: "brake_pressure",
-            config: {}
-        },
-        {
-            id: "00:01:02:03:04:02",
-            description: "test3",
-            name: "test3",
-            typeName: "brake_pressure",
-            config: {}
-        },
-        {
-            id: "00:01:02:03:04:03",
-            description: "test4",
-            name: "test4",
-            typeName: "brake_pressure",
-            config: {}
-        },
-        {
-            id: "00:01:02:03:04:04",
-            description: "test5",
-            name: "test5",
-            typeName: "brake_pressure",
-            config: {}
-        }
-    ]
-}
 
 const test_header = [
     0xAA, // Regular header
@@ -52,7 +13,7 @@ const test_header = [
     0x00, 0x01, 0x02, 0x03, 0x04, 0x00, 0x00, // Version: 0
     0x00, 0x01, 0x02, 0x03, 0x04, 0x01, 0x05, // Version: 5
 
-    0xDB, 0xE8 //CRC-8 data checksum
+    0xDB, 0xE8 //CRC-16 data checksum
 ];
 
 const bad_checksum_header = [
@@ -63,7 +24,7 @@ const bad_checksum_header = [
     0x00, 0x01, 0x02, 0x03, 0x04, 0x00, 0x00, // Version: 0
     0x00, 0x01, 0x02, 0x03, 0x04, 0x01, 0x05, // Version: 5
 
-    0, 0//CRC-8 data checksum
+    0, 0//CRC-16 data checksum
 ];
 
 const extended_header = [
@@ -94,7 +55,7 @@ const test_data = [
 
 describe("DaqDecoder", () => {
     test("regular header parse", (done) => {
-        const sm = new SchemaManager(test_daq_schema, [SensorBrakePressure]);
+        const sm = new SchemaManager(testDAQSchema, [SensorBrakePressure]);
         const d = new DaqDecoder(sm, {
             onHeader: () => done(),
             onError: throwErr,
@@ -107,7 +68,7 @@ describe("DaqDecoder", () => {
     })
 
     test("header bad checksum", (done) => {
-        const sm = new SchemaManager(test_daq_schema, [SensorBrakePressure]);
+        const sm = new SchemaManager(testDAQSchema, [SensorBrakePressure]);
         const d = new DaqDecoder(sm, {
             onHeader: noop,
             onError: (err) => done(),
@@ -124,7 +85,7 @@ describe("DaqDecoder", () => {
             BP1: {pressurePsi: 1},
             BP2: {pressurePsi: 2},
         }
-        const sm = new SchemaManager(test_daq_schema, [SensorBrakePressure]);
+        const sm = new SchemaManager(testDAQSchema, [SensorBrakePressure]);
         const d = new DaqDecoder(sm,
             {
                 onHeader: noop,
@@ -147,7 +108,7 @@ describe("DaqDecoder", () => {
         }
 
         console.log(extended_header);
-        const sm = new SchemaManager(test_daq_schema, [SensorBrakePressure]);
+        const sm = new SchemaManager(testDAQSchema, [SensorBrakePressure]);
         const d = new DaqDecoder(sm, {
             onHeader: () => done(),
             onError: throwErr,

@@ -1,13 +1,12 @@
-import {calcChecksum} from "./calcChecksum";
 import {SchemaManager} from "./SchemaManager";
-import {buf2mac} from "./util/buf2hex";
 import {Parser} from "binary-parser";
 import {headerParser} from "./parsers/header";
 import {crc16} from "./util/crc16";
 import {ModuleTypeDefinition} from "./ModuleType";
 import {ResolvedModuleDefinition} from "./interfaces/DaqSchema";
 import {extendedHeaderParser} from "./parsers/extendedHeader";
-import {sliceU8} from "./ArrayUtils";
+import {sliceU8} from "./util/ArrayUtils";
+import {buf2mac} from "./util/MACUtil";
 
 interface headerData {
     id: Uint8Array,
