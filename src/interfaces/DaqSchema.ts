@@ -5,7 +5,8 @@ export interface ModuleDefinition {
     name: string;
     description: string;
     typeName: string;
-    config: Object
+    config: Object;
+    version?: number;
 }
 
 export interface DaqSchema {

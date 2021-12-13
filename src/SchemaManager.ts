@@ -1,21 +1,18 @@
 import {DaqSchema, ModuleDefinition, ResolvedModuleDefinition} from "./interfaces/DaqSchema";
 import {ModuleTypeDefinition} from "./ModuleType";
-import {DaqDecoder} from "./DaqDecoder";
-import {buf2mac} from "./util/buf2hex";
+import {buf2mac} from "./util/MACUtil";
 
 const MACRegex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/;
 
 export class SchemaManager {
     private moduleTypes: ModuleTypeDefinition<any, any, any>[];
     private daqSchema: DaqSchema;
-    private resolvedModules: ResolvedModuleDefinition[];
     private resolvedIdMap: Map<string, ResolvedModuleDefinition> = new Map();
     private resolvedNameMap: Map<string, ResolvedModuleDefinition> = new Map();
 
     constructor(daqSchema: DaqSchema, moduleTypes: ModuleTypeDefinition<any, any, any>[]) {
         this.moduleTypes = moduleTypes;
         this.daqSchema = daqSchema;
-        this.resolvedModules = [];
 
         this.loadDaqSchema(daqSchema);
     }
@@ -71,18 +68,21 @@ export class SchemaManager {
         resolvedDefinitions.forEach(v => this.resolvedIdMap.set(v.resolved.id, v.resolved));
         resolvedDefinitions.forEach(v => this.resolvedNameMap.set(v.resolved.name, v.resolved));
 
-        this.resolvedModules = resolvedDefinitions.map(d => d.resolved);
         this.daqSchema = {
             ...daqSchema,
             modules: resolvedDefinitions.map(d => d.corrected)
         }
     }
 
-    findById(id: string | ArrayBuffer | number[]): ResolvedModuleDefinition | undefined {
+    findById(id: string | Uint8Array): ResolvedModuleDefinition {
         if (typeof id !== "string")
             id = buf2mac(id);
 
-        return this.resolvedIdMap.get(id);
+        const res = this.resolvedIdMap.get(id);
+        if (!res)
+            throw new Error(`Attempt to resolve module ID >${id}< which doesn't exist in the schema.`);
+
+        return res;
     }
 
     findByName(id: string): ResolvedModuleDefinition | undefined {

@@ -1,28 +1,51 @@
 import {DaqEncoder} from "../src/DaqEncoder";
-import {throws} from "assert";
-import {cStruct, uint32, uint8} from "c-type-util";
+import {SchemaManager} from "../src/SchemaManager";
+import {testDAQSchema} from "./schema";
+import {SensorBrakePressure} from "../src/moduleTypes/SensorBrakePressure";
 
-describe("Test DaqEncoder", () => {
-    test("Throws on no passed members", () => {
-        expect(() => new DaqEncoder({})).toThrow();
-    })
+const sm = new SchemaManager(testDAQSchema, [SensorBrakePressure]);
+const d = new DaqEncoder(sm, {});
 
-    test("basic usage", () => {
-        const de = new DaqEncoder({
-            field1: uint8,
-            field2: cStruct({
-                sub1: uint32,
-                sub2: uint8
-            })
-        });
+describe("DaqEncoder", () => {
+    it("errors on encode w/o active modules", () => {
+        expect(d.encode).toThrow();
+        expect(d.encodeHeader).toThrow();
+        expect(d.encodeExtendedHeader).toThrow();
+    });
 
-        de.encode({
-            field1: 100,
-            field2: {
-                sub1: 20,
-                sub2: 244
-            }
-        });
+    it("encodes a simple header", () => {
+        d.setActiveModules(["00:01:02:03:04:00"]);
 
-    })
+        expect(d.encodeHeader()).toEqual(new Uint8Array([
+            0xAA,
+            0x01, 0x00, //Length in # of blocks
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x00, 0x00, //MAC + version
+            21, 168
+        ]));
+    });
+
+    it("encodes a slightly more complex header", () => {
+        d.setActiveModules(["00:01:02:03:04:00", "00:01:02:03:04:01"]);
+
+        expect(d.encodeHeader()).toEqual(new Uint8Array([
+            0xAA, // Regular header
+            2, 0, // 2 modules present
+
+            //2 MAC address ids.
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x00, 0x00, // Version: 0
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x01, 0x05, // Version: 5
+
+            0xDB, 0xE8 //CRC-16 data checksum
+        ]));
+    });
+
+    it("encodes some data", () => {
+        d.setActiveModules(["00:01:02:03:04:00"]);
+
+        expect(d.encode({BP1: {analogValue: 0x55}})).toEqual(new Uint8Array([
+            0x69, // Regular header
+            0x55, 0x00, // BP1 Data
+            162, 8 //CRC-16 data checksum
+        ]));
+    });
 })
