@@ -1,3 +1,0 @@
-import { Parser } from "binary-parser";
-export declare const headerBlock: Parser;
-export declare const extendedHeaderParser: Parser;
