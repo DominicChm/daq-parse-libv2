@@ -1,6 +1,5 @@
 import {ModuleTypeDefinition} from "../ModuleType";
-import {cStruct, StructMembers, uint16} from "c-type-util";
-import Joi, {ObjectSchema} from "joi";
+import Joi from "joi";
 import {Parser} from "binary-parser";
 
 interface SBPRaw {
