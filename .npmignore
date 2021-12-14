@@ -1,1 +1,4 @@
 !dist
+.idea
+nodemon.json
+tests
