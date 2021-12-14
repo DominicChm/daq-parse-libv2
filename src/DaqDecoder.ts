@@ -7,20 +7,12 @@ import {ResolvedModuleDefinition} from "./interfaces/DaqSchema";
 import {extendedHeaderParser} from "./parsers/extendedHeader";
 import {sliceU8} from "./util/ArrayUtils";
 import {buf2mac} from "./util/MACUtil";
+import {DaqDecoderOptions} from "./interfaces/DaqDecoderOptions";
 
 interface headerData {
     id: Uint8Array,
     ver: number
 }
-
-interface DaqDecoderOptions {
-    onData: CallBack<any>;
-    onHeader: CallBack<any>;
-    onError: CallBack<any>;
-    ids: string[];
-}
-
-type CallBack<T> = (data: T) => void;
 
 export class DaqDecoder {
     private readonly daqSchema: SchemaManager;

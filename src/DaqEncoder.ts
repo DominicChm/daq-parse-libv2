@@ -1,5 +1,5 @@
 import {SchemaManager} from "./SchemaManager";
-import {DaqEncoderConfig} from "./interfaces/DaqEncoderConfig";
+import {DaqEncoderOptions} from "./interfaces/DaqEncoderOptions";
 import {ResolvedModuleDefinition} from "./interfaces/DaqSchema";
 import {sliceU8, createDv} from "./util/ArrayUtils";
 import {mac2buf} from "./util/MACUtil";
@@ -10,7 +10,7 @@ export class DaqEncoder<S> {
     private activeModuleIds: string[] = [];
     private activeModuleDefinitions: ResolvedModuleDefinition[] = [];
 
-    constructor(sm: SchemaManager, options: DaqEncoderConfig) {
+    constructor(sm: SchemaManager, options: DaqEncoderOptions) {
         this.schemaManager = sm;
     }
 

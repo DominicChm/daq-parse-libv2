@@ -1,5 +1,5 @@
 import {CType} from "c-type-util";
 
-export interface DaqEncoderConfig {
+export interface DaqEncoderOptions {
 
 }
