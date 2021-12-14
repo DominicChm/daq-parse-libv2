@@ -1,11 +1,13 @@
 {
   "name": "daq-parse-libv2",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Parser for CP Baja's data format.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "bench": "npx ts-node src/benchmarking/idlookup.bench.ts",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "build": "tsc src"
   },
   "keywords": [],
   "author": "",
@@ -28,6 +30,10 @@
     "joi": "^17.4.2",
     "smart-buffer": "^4.2.0"
   },
+  "files": [
+    "dist/**/*"
+  ],
+  "prepare": "npm run build",
   "jest": {
     "transform": {
       "^.+\\.(ts|js|html)$": "ts-jest"
